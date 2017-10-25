@@ -15,6 +15,7 @@ function pipe2(fn1, fn2) {
   };
 }
 
+// Left to right in order of execution
 var multAndSum = pipe2(mult, sum);
 
 console.log( multAndSum(1, 2, 3) );
