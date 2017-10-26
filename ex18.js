@@ -1,5 +1,6 @@
 "use strict";
-
+// Recursion is when a function calls itself until it reaches a base
+// condition, then it stops calling itself.
 function sumIter(...nums) {
   var sum = 0;
   for (let i = 0; i < nums.length; i += 1) {
