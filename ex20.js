@@ -38,7 +38,6 @@ function addn(fn1, fn2, ...fns) {
 
 function onlyUniq(value, index, list) {
   return list.indexOf(value) === index;
-  // return [...new Set(list)];
 }
 
 function onlyEven(value) {
