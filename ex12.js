@@ -16,8 +16,8 @@ function decrement(x) { return x - 1; }
 function double(x) { return x * 2; }
 function half(x) { return x / 2; }
 
-var f = compose(decrement, double, increment, half);
-var p = pipe(half, increment, double, decrement);
+var f = compose(decrement, double, increment, half); // right to left
+var p = pipe(half, increment, double, decrement); // left right right
 
 console.log( f(3) )
 console.log( p(3) )
