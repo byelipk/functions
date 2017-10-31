@@ -10,12 +10,18 @@
 
 // What is a functon? What is a procedure?
 
+// A procedure is an arbitrary collection of functionality. It may
+// accept inputs, it may not. It may or may not have a return value.
+// A function definetly has inputs and always has a return value.
+
 function foo(x, y, z, w) {
   console.log(x, y, z, w); // This does not return an output. NOT A FUNCTION.
 }
 
 function bar(x = 2, ...args) {
-  return foo(x, 42, ...args); // NOT A FUNCTION because it calls the procedure foo().
+// NOT A FUNCTION because it calls the procedure foo() 
+// and we already know foo is not a function, but a procedure.
+  return foo(x, 42, ...args); 
 }
 
 bar();
