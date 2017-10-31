@@ -1,3 +1,7 @@
+// ****************************
+// MANAGING FUNCTION INPUTS
+// ****************************
+
 // Identity function
 function identity(v) {
   return v;
