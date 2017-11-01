@@ -144,21 +144,37 @@ function compose(...fns) {
   }
 }
 
+function pipe(...fns) {
+  return function piped(result){
+      var list = fns.slice();
+
+      while (list.length > 0) {
+          // take the first function from the list
+          // and execute it
+          result = list.shift()( result );
+      }
+
+      return result;
+  };
+}
+
 
 
 module.exports = {
+  compose,
+  pipe,
   partial,
-  when,
-  not,
-  curry,
-  uncurry,
   partialRight,
   partialProps,
+  curry,
+  uncurry,
+  spreadArgs,
+  gatherArgs,
+  reverseArgs,
+  when,
+  not,
   curryProps,
   identity,
   unary,
   constant,
-  spreadArgs,
-  gatherArgs,
-  reverseArgs
 }
