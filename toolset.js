@@ -128,6 +128,24 @@ function uncurry(fn) {
   };
 }
 
+// ****************************
+// COMPOSING FUNCTIONS
+// ****************************
+
+function compose(...fns) {
+  return function composed(result) {
+    var list = fns.slice();
+
+    while ( list.length > 0 ) {
+      result = list.pop()(result);
+    }
+
+    return result;
+  }
+}
+
+
+
 module.exports = {
   partial,
   when,
