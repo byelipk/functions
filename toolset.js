@@ -158,6 +158,63 @@ function pipe(...fns) {
   };
 }
 
+function take(count, list) {
+  var result = [];
+
+  if (count < 0) count = 0;
+  if (count > list.length) count = list.length;
+
+  for (let i = 0; i < count; i += 1) {
+    if (list[i]) {
+      result.push(list[i]);
+    }
+  }
+
+  return result;
+}
+
+function map(list, fn) {
+  var result = [];
+
+  list.forEach(function mapper(item) {
+    result.push(fn(item));
+  });
+
+  return result;
+}
+
+function filter(list, testFn) {
+  var result = [];
+
+  list.forEach(function each(item) {
+    if (testFn(item)) {
+      result.push(item);
+    }
+  });
+
+  return result;
+} 
+
+function reduce(list, reducerFn, defaultValue) {
+  var result = defaultValue;
+
+  list.forEach(function each(item, index) {
+    result = reducerFn(result, item, index, list);
+  });
+
+  return result;
+}
+
+function getProp(name, obj) {
+  return obj[name];
+}
+
+function setProp(obj, name, val) {
+  var o = Object.assign({}, obj);
+  o[name] = val;
+  return o;
+}
+
 
 
 module.exports = {
@@ -174,7 +231,12 @@ module.exports = {
   when,
   not,
   curryProps,
+  take,
+  map,
+  filter,
   identity,
   unary,
   constant,
+  getProp,
+  setProp
 }
