@@ -36,27 +36,111 @@ function gatherArgs(fn) {
 }
 
 // Partial function application
-module.exports.partial = function partial(fn, ...presetArgs) {
+function partial(fn, ...presetArgs) {
   return function partialFn(...laterArgs) {
     return fn(...presetArgs, ...laterArgs);
   }
 }
 
 // Returns function which accepts arguments in reverse order from the original
-module.exports.reverseArgs = function reverseArgs(fn) {
+function reverseArgs(fn) {
   return function reverseFn(...args) {
     return fn(...args.reverse());
   }
 }
 
 // Reverses and partially applies function
-module.exports.partialRight = function partialRight(fn, ...presetArgs) {
-  return partial( reverseArgs(fn), ...presetArgs.reverse() );
-}
+// function partialRight(fn, ...presetArgs) {
+//   return partial( reverseArgs(fn), ...presetArgs.reverse() );
+// }
 
 // More performant
-module.exports.partialRight2 = function partialRight(fn,...presetArgs) {
+function partialRight(fn, ...presetArgs) {
   return function partiallyApplied(...laterArgs) {
       return fn( ...laterArgs, ...presetArgs );
   };
+}
+
+// Currying unwinds a higher-arity function into a series of unary functions
+function curry(fn, arity=fn.length) {
+  return (function next(prevArgs) {
+    return function curried(nextArg) {
+      var args = [...prevArgs, nextArg];
+
+      if (args.length >= arity) {
+        return fn(...args);
+      }
+      else {
+        return next(args);
+      }
+    }
+  })([]);
+}
+
+// Partial application without an ordering dependency
+function partialProps(fn, presetArgsObj) {
+  return function partiallyApplied(laterArgsObj) {
+      return fn( Object.assign( {}, presetArgsObj, laterArgsObj ) );
+  };
+}
+
+// Currying without an ordering dependency
+function curryProps(fn, arity=1) {
+  return (function nextCurried(prevArgsObj){
+      return function curried(nextArgObj = {}){
+          var [key] = Object.keys( nextArgObj );
+          var allArgsObj = Object.assign( {}, prevArgsObj, { [key]: nextArgObj[key] } );
+
+          if (Object.keys( allArgsObj ).length >= arity) {
+              return fn( allArgsObj );
+          }
+          else {
+              return nextCurried( allArgsObj );
+          }
+      };
+  })( {} );
+}
+
+// Negate predicate functions
+function not(predicate) {
+  return function negated(...args) {
+    return !predicate(...args);
+  }
+}
+
+function when(predicate, fn) {
+  return function conditional(...args) {
+    if (predicate(...args)) {
+      return fn(...args);
+    }
+  }
+}
+
+function uncurry(fn) {
+  return function uncurried(...args){
+      var ret = fn;
+
+      for (let arg of args) {
+        ret = ret( arg );
+      }
+
+      return ret;
+  };
+}
+
+module.exports = {
+  partial,
+  when,
+  not,
+  curry,
+  uncurry,
+  partialRight,
+  partialProps,
+  curryProps,
+  identity,
+  unary,
+  constant,
+  spreadArgs,
+  gatherArgs,
+  reverseArgs
 }
