@@ -9,7 +9,7 @@ function identity(v) {
 
 // Unary function
 function unary(fn) {
-  function onlyOneArg(arg) {
+  return function onlyOneArg(arg) {
     return fn(arg);
   }
 }
@@ -116,6 +116,16 @@ function when(predicate, fn) {
   }
 }
 
+function guard(fn) {
+  return function guarded(arg) {
+    if (arg != null) {
+      return fn(arg)
+    }
+
+    return arg;
+  }
+}
+
 function uncurry(fn) {
   return function uncurried(...args){
       var ret = fn;
@@ -132,6 +142,13 @@ function uncurry(fn) {
 // COMPOSING FUNCTIONS
 // ****************************
 
+function unboundMethod(name, arity=2) {
+  return curry(function curried(...args) {
+    var obj = args.pop();
+    return obj[name]( ...args );
+  }, arity);
+}
+
 function compose(...fns) {
   return function composed(result) {
     var list = fns.slice();
@@ -141,6 +158,14 @@ function compose(...fns) {
     }
 
     return result;
+  }
+}
+
+function compose2(...fns) {
+  return function composed(accumulator) {
+    return fns.reduceRight(function reducer(result, fn) {
+      return fn( result );
+    }, accumulator);
   }
 }
 
@@ -183,6 +208,17 @@ function map(list, fn) {
   return result;
 }
 
+// Easier to compose with currying when the parameter list goes (fn, list)
+function map2(fn, list) {
+  var result = [];
+
+  for (let [index, value] of list.entries()) {
+    result.push( fn(value, index, list) );
+  }
+
+  return result;
+}
+
 function filter(list, testFn) {
   var result = [];
 
@@ -195,14 +231,103 @@ function filter(list, testFn) {
   return result;
 } 
 
-function reduce(list, reducerFn, defaultValue) {
-  var result = defaultValue;
+function filterIn(predicateFn, list) {
+  var result = [];
 
-  list.forEach(function each(item, index) {
-    result = reducerFn(result, item, index, list);
-  });
+  for (let [index, value] of list.entries()) {
+    if (predicateFn(value, index, list)) {
+      result.push(value);
+    }
+  }
 
   return result;
+}
+
+function filterOut(predicateFn, list) {
+  return filterIn( not(predicateFn), list );
+}
+
+function reduce(reducerFn, initialValue, list) {
+  var startIndex, result;
+
+  if (arguments.length === 3) {
+    result = initialValue;
+    startIndex = 0;
+  }
+  else if (list.length > 0) {
+    result = list[0];
+    startIndex = 1;
+  }
+  else {
+    throw new Error("Must provide initial value to reduce.");
+  }
+
+  for (let index = startIndex; index < list.length; index += 1) {
+    result = reducerFn( result, list[index], index, list );
+  }
+
+  return result;
+}
+
+function unique(list) {
+  return filterOut( duplicates, list );
+}
+
+function flatten(list) {
+  return list.reduce(function flattenFn(acc, item) {
+    if (Array.isArray(item) === false) {
+      acc.push(item);
+    }
+    else {
+      for (let [index, val] of item.entries()) {
+        acc.push(val);
+      }
+    }
+
+    return acc;
+  }, []);
+}
+
+function flatMap(mapperFn, list) {
+  return flatten( map2( mapperFn, list ) );
+}
+
+function flatMap2(mapperFn, list) {
+  return reduce(function reducer(acc, val) {
+    return acc.concat( mapperFn( val ) )
+  }, [], list);
+}
+
+function zip(list1, list2) {
+  var zipped = [];
+  
+  list1 = list1.slice();
+  list2 = list2.slice();
+
+  while (list1.length && list2.length) {
+    zipped.push( [list1.shift(), list2.shift()] );
+  }
+
+  return zipped;
+}
+
+function mergeLists(list1, list2) {
+  var merged = [];
+
+  list1 = list1.slice();
+  list2 = list2.slice();
+
+  while ( list1.length || list2.length ) {
+    if (list1.length) {
+      merged.push( list1.shift() )
+    }
+
+    if (list2.length) {
+      merged.push( list2.shift() )
+    }
+  }
+
+  return merged;
 }
 
 function getProp(name, obj) {
@@ -215,10 +340,15 @@ function setProp(obj, name, val) {
   return o;
 }
 
+function duplicates(value, index, list) {
+  return list.indexOf(value) !== index;
+}
+
 
 
 module.exports = {
   compose,
+  compose2,
   pipe,
   partial,
   partialRight,
@@ -233,10 +363,22 @@ module.exports = {
   curryProps,
   take,
   map,
+  map2,
   filter,
+  filterIn,
+  filterOut,
+  reduce,
+  flatMap,
+  flatMap2,
+  zip,
+  mergeLists,
   identity,
   unary,
   constant,
   getProp,
-  setProp
+  setProp,
+  unique,
+  flatten,
+  unboundMethod,
+  guard
 }
