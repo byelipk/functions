@@ -1,9 +1,12 @@
 var { curry, pipe, reduce, map2, compose, filterIn, filterOut } = require('./toolset');
 
+// Curry the functions which will build the pipeline
 var exclude = curry( filterOut );
 var include = curry( filterIn );
 var map = curry( map2 );
 var cook = curry( reduce );
+
+// ************ WORKER FUNCTIONS
 
 function sum(acc, num) {
   return acc + num;
@@ -20,6 +23,8 @@ function isOdd(num) {
 function isEqualToTwo(num) {
   return num === 2;
 }
+
+// ************* THE PIPELINE
 
 var pipeline = compose(
   cook( sum )( 0 ),
